@@ -1,0 +1,10 @@
+{
+  "name": "qspy",
+  "version": "0.0.1",
+  "description": "Quake master server browser",
+  "keywords": ["quake"],
+  "homepage": "http://github.com/drags/qspy",
+  "dependencies": {
+    "jspack": ">0.0.0"
+  }
+}
