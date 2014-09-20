@@ -60,16 +60,27 @@ function parseServerVars(vars) {
 		v = allVars.shift();
 		svars[k] = v;
 	}
-	console.log(svars);
+	return svars;
 
+}
+
+function parsePlayerList(playerList) {
+	var players = playerList.map(function parsePlayer(pLine) {
+		var pInfo = pLine.split(' ');
+		return { 'score': pInfo[0], 'ping': pInfo[1], 'name': pInfo[2] }
+	});
+	return players;
 }
 
 function getInfo(host, port) {
 	client.on('message', function onMessge(message, remote) {
 		var serverInfo = message.toString('ascii', 20).split('\n');
-		var serverVars = serverInfo[0];
-		var playerList = serverInfo.slice(1);
-		parseServerVars(serverVars);
+
+		var serverVars = parseServerVars(serverInfo[0]);
+		var playerList = parsePlayerList(serverInfo.slice(1, serverInfo.length - 1));
+
+		console.log('SVARS ', serverVars);
+		console.log('PLAYERS ', playerList);
 	});
 	sendQuery('getstatus', host, port);
 }
