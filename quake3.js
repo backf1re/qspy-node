@@ -60,22 +60,24 @@ exports.parseGetServersReply = function(message, remote) {
 	logger.debug('Got message ', remote.address + ':' + remote.port);
 
 	msgLen = message.length
+    var foundServers = new Array;
+
 	var byteOffset = 22; // skip initial ÿÿÿÿgetserversResponse
 	while(byteOffset < msgLen) {
 		var address = jspack.jspack.Unpack('>BBBBH', message, byteOffset);
-		if (typeof address === "undefined") {
+		if (typeof address === "undefined" || address[4] === 0) {
 			break;
 		}
 		byteOffset += 6 // 4 octets, 2 port
 
         var port = address.pop();
-        if (port < 1024) {
-            continue;
-        }
         var ip = address.join('.');
         logger.debug("Got address ", ip + ":" + port);
 
+        foundServers.push([ip, port]);
 	}
+
+    return foundServers;
 }
 
 function handleGetInfoReply(message, remote) {
@@ -109,12 +111,12 @@ function parsePlayerList(playerList) {
     return players;
 }
 
-exports.getServers = function() {
+exports.getServers = function(serverHandler) {
     var serverRequestMsg = 'getservers 68 empty full';
     var masterHost = 'master.ioquake3.org';
-    var masterPort = 27950
+    var masterPort = 27950;
 
-    sendQuery(serverRequestMsg, masterHost, masterPort, handleGetServersReply)
+    sendQuery(serverRequestMsg, masterHost, masterPort, serverHandler)
 }
 
 var getInfo = exports.getInfo = function (host, port) {
