@@ -1,5 +1,17 @@
-var dgram = require('dgram');
-var jspack = require('jspack');
+var dgram = require('dgram'),
+    jspack = require('jspack'),
+    winston = require('winston');
+
+winston.cli();
+
+var logger = new(winston.Logger)({
+    transports: [
+        new (winston.transports.Console)({ json: false, timestamp: true })
+    ],
+    exceptionHandlers: [
+        new (winston.transports.Console)({ json: false, timestamp: true })
+    ]
+});
 
 // Msg packing
 var msgPrefix = Buffer('AAAA', 'ascii');
@@ -12,10 +24,10 @@ function getClient() {
     var clientPort = Math.floor(Math.random() * (65000 - 2000) + 2000);
     client.bind(clientPort);
     client.on('error', function (err) {
-        console.log(err);
+        logger.error(err);
     });
     client.on('listening', function onListen() {
-        console.log('LISTENING on port ' + client.address.port);
+        logger.debug('LISTENING on port ' + client.address.port);
     });
     setTimeout(function waitToDie() {
         client.close();
@@ -28,25 +40,25 @@ function getClient() {
 function sendQuery(msg, host, port, cb) {
     var cmdBuf = Buffer(msg, 'ascii')
     var msgBuf = Buffer.concat([msgPrefix, cmdBuf, msgTerminator])
-   
-    //	console.log('Sending buffer of length: ', msgBuf.length);
-    //	console.log('For a string of length: ', msg.length);
-    //	console.log('bufs is: ', msgBuf);
-    //	console.log('msg is: ', msg);
+
+    //	logger.debug('Sending buffer of length: ', msgBuf.length);
+    //	logger.debug('For a string of length: ', msg.length);
+    //	logger.debug('bufs is: ', msgBuf);
+    //	logger.debug('msg is: ', msg);
 
     client = getClient();
 
     client.send(msgBuf, 0, msgBuf.length, port, host, function onSend(err, bytes) {
         if (err) throw err;
-        console.log('UDP message of ' + msgBuf.length + ' sent to ' + host +':'+ port);
+        logger.debug('UDP message of ' + msgBuf.length + ' sent to ' + host +':'+ port);
     });
-    
+
     client.on('message', cb);
 }
 
-function handleGetServersReply(message, remote) {
-	console.log('Got message');
-	console.log(remote.address + ':' + remote.port);
+exports.parseGetServersReply = function(message, remote) {
+	logger.debug('Got message ', remote.address + ':' + remote.port);
+
 	msgLen = message.length
 	var byteOffset = 22; // skip initial ÿÿÿÿgetserversResponse
 	while(byteOffset < msgLen) {
@@ -56,14 +68,13 @@ function handleGetServersReply(message, remote) {
 		}
 		byteOffset += 6 // 4 octets, 2 port
 
-		console.log('Got address: ', address);
         var port = address.pop();
         if (port < 1024) {
             continue;
         }
         var ip = address.join('.');
-        console.log("Got IP ", ip);
-        getInfo(ip, port);
+        logger.debug("Got address ", ip + ":" + port);
+
 	}
 }
 
@@ -74,14 +85,13 @@ function handleGetInfoReply(message, remote) {
     var playerList = parsePlayerList(serverInfo.slice(1, serverInfo.length - 1));
 
     //return (serverVars, playerList);
-    console.log('SVARS ', serverVars);
-    console.log('PLAYERS ', playerList);
+    logger.debug('SVARS ', serverVars);
+    logger.debug('PLAYERS ', playerList);
 }
 
 function parseServerVars(vars) {
     vars = vars.toString('ascii');
     var allVars = vars.split('\\');
-    console.log(allVars.length);
     var svars = {};
     while(allVars.length > 0) {
         k = allVars.shift();

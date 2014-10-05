@@ -5,6 +5,7 @@
   "keywords": ["quake"],
   "homepage": "http://github.com/drags/qspy",
   "dependencies": {
-    "jspack": ">0.0.0"
+    "jspack": ">0.0.0",
+    "winston": ">0.0.0"
   }
 }
