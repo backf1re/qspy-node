@@ -80,15 +80,13 @@ exports.parseGetServersReply = function(message, remote) {
     return foundServers;
 }
 
-function handleGetInfoReply(message, remote) {
+exports.parseGetInfoReply = function(message, remote) {
     var serverInfo = message.toString('ascii', 20).split('\n');
 
     var serverVars = parseServerVars(serverInfo[0]);
     var playerList = parsePlayerList(serverInfo.slice(1, serverInfo.length - 1));
 
-    //return (serverVars, playerList);
-    logger.debug('SVARS ', serverVars);
-    logger.debug('PLAYERS ', playerList);
+    return [serverVars, playerList];
 }
 
 function parseServerVars(vars) {
@@ -119,6 +117,6 @@ exports.getServers = function(serverHandler) {
     sendQuery(serverRequestMsg, masterHost, masterPort, serverHandler)
 }
 
-var getInfo = exports.getInfo = function (host, port) {
-    sendQuery('getstatus', host, port, handleGetInfoReply);
+var getInfo = exports.getInfo = function (host, port, infoHandler) {
+    sendQuery('getstatus', host, port, infoHandler);
 }
