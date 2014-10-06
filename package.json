@@ -1,9 +1,14 @@
 {
   "name": "qspy",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "description": "Quake master server browser",
   "keywords": ["quake"],
   "homepage": "http://github.com/drags/qspy",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "dependencies": {
     "jspack": ">0.0.0",
     "winston": ">0.0.0"

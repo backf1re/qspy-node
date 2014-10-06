@@ -53,4 +53,3 @@ quake3.getServers(getServerInfo);
 setTimeout(function waitToDie() {
     db.close();
 }, 4000);
-

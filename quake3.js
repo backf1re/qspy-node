@@ -6,10 +6,10 @@ winston.cli();
 
 var logger = new(winston.Logger)({
     transports: [
-        new (winston.transports.Console)({ json: false, timestamp: true })
+        new (winston.transports.Console)({ json: false, timestamp: true, level: 'debug'})
     ],
     exceptionHandlers: [
-        new (winston.transports.Console)({ json: false, timestamp: true })
+        new (winston.transports.Console)({ json: true, timestamp: true })
     ]
 });
 
@@ -27,11 +27,11 @@ function getClient() {
         logger.error(err);
     });
     client.on('listening', function onListen() {
-        logger.debug('LISTENING on port ' + client.address.port);
+        logger.debug('LISTENING on port ' + client.address().port);
     });
     setTimeout(function waitToDie() {
         client.close();
-    }, 8000);
+    }, 3000);
 
 
     return client;
